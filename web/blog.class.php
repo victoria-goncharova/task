@@ -21,14 +21,13 @@ function get_all_posts(){
 	$conn = $this->db_connect();
 	$res = $conn ->prepare('SELECT title FROM posts ORDER BY created_at DESC');
 	$res ->execute();
-	$i = 0;
+	$index = 0;
 	while($row = $res->fetch(PDO::FETCH_ASSOC)){
 		foreach($row as $key => $val){
-			$results[$i] = $val;
+			$results[$index] = $val;
 		}
-		$i++;
-	}
-		
+		$index++;
+		}
 	return $results;
 }
 function print_all_posts(){
@@ -37,24 +36,47 @@ function print_all_posts(){
 		echo '<h2>'.$title.'</h2>';
 	}
 }
-function get_post(){
-	$conn=$this->db_connect();
-	$res = $conn->prepare('SELECT title, post, created_at FROM posts WHERE id=:id');
-	$res ->bindParam (':id',$_GET['id'], PDO::PARAM_INT);
-	$res ->execute();
-	$results = $res->fetch(PDO::FETCH_ASSOC);
-	return $results;
-}
-
 function print_post(){
-	if (isset($_GET['id'])){
-		$result=$this->get_post();
-		foreach ($result as $key){
+	$conn = $this -> db_connect();
+	$res = $conn -> prepare('SELECT title, post, created_at FROM posts WHERE id=:id');
+	$res ->execute(array(':id'=>$_GET['id']));
+	$results = $res->fetch(PDO::FETCH_ASSOC);
+	if ($results != null) {
+		foreach ($results as $key){
 			echo '<p>'.$key.'</p>';
-		}
+		}	
+	}
+	else {
+		header("HTTP/1.0 404 Not Found");
+		exit; 
 	}
 }
+function add_post (){
+	$conn=$this->db_connect();
+	$res=$conn->prepare('INSERT INTO posts(title,post,created_at) VALUES (:title, :post, :created_at)' );
+	$created_at = date(YmdHms);
+	$res ->execute(array(':title'=>$_POST['title'], ':post'=>$_POST['post'],':created_at'=>$created_at));
 }
-$blog = new Blog;
-$blog ->print_all_posts();
-$blog ->print_post();
+
+function get_title(){
+	$conn=$this ->db_connect();
+	$res =$conn->prepare('SELECT title FROM posts WHERE id=:id');
+	$res ->execute(array(':id'=>$_GET['id']));
+		for($i=0; $row = $res->fetch(); $i++){
+			echo $row['title'];
+		}
+}
+function get_text(){
+	$conn=$this ->db_connect();
+	$res =$conn->prepare('SELECT post FROM posts WHERE id=:id');
+	$res ->execute(array(':id'=>$_GET['id']));
+	for($i=0; $row = $res->fetch(); $i++){
+        echo $row['post'];
+    }
+}
+function update_post(){
+	$conn=$this->db_connect();
+	$res=$conn->prepare('UPDATE posts SET title=:title, post=:post WHERE id=:id');
+	$res ->execute(array(':id'=>$_GET['id'],':title'=>$_POST['title'],':post'=>$_POST['post']));
+	}
+}
