@@ -77,5 +77,17 @@ function update_post(){
 	$conn = $this -> db_connect();
 	$res = $conn -> prepare('UPDATE posts SET title=:title, post=:post WHERE id=:id');
 	$res -> execute(array(':id'=>$_GET['id'],':title'=>$_POST['title'],':post'=>$_POST['post']));
+}
+function check_id(){
+	$conn = $this -> db_connect();
+	$res = $conn -> prepare('SELECT post FROM posts WHERE id=:id');
+	$res -> execute(array(':id'=>$_GET['id']));
+	$results = $res -> fetch(PDO::FETCH_ASSOC);
+	if ($results == null) {
+		header("HTTP/1.0 404 Not Found");
+		exit;
+	}	
+	else { 
 	}
+}	
 }
