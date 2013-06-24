@@ -87,7 +87,5 @@ function check_id(){
 		header("HTTP/1.0 404 Not Found");
 		exit;
 	}	
-	else { 
-	}
 }	
 }
